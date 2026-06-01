@@ -15,6 +15,16 @@ pnpm build
 pnpm start
 ```
 
+## Verification
+
+```powershell
+corepack pnpm typecheck
+corepack pnpm build
+corepack pnpm test:unit
+corepack pnpm test:integration
+corepack pnpm smoke
+```
+
 ## Commands
 
 - `/help` shows commands

@@ -298,10 +298,18 @@ DEEPCODE_USD_TO_CNY=7.25
 ```powershell
 corepack pnpm typecheck
 corepack pnpm build
+corepack pnpm test:unit
+corepack pnpm test:integration
 corepack pnpm smoke
 ```
 
 全部通过后再提交。
+
+说明：
+
+- `test:unit` 验证纯逻辑模块，如权限、配置、成本、压缩、session、`DEEPCODE.md` 初始化。
+- `test:integration` 验证文件系统、工具链、Git 临时仓库和命令执行。
+- `smoke` 会依次运行 unit 和 integration，适合提交前最终检查。
 
 ## 13. 端到端能力验证 Prompt
 

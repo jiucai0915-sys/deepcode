@@ -10,6 +10,8 @@
     "build": "tsup",
     "start": "node dist/bin/deepcode.js",
     "typecheck": "tsc --noEmit",
+    "test:unit": "node dist/src/test/unit.js",
+    "test:integration": "node dist/src/test/integration.js",
     "smoke": "node dist/src/smoke.js"
   },
   "engines": {

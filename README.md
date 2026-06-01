@@ -25,6 +25,7 @@ pnpm start
 - `/cost` shows cumulative token cost for the current CLI run
 - `/config` prints the effective config with secrets masked
 - `/tools` lists available tools
+- `/context` shows the project context injected into the model
 - `/exit` exits
 
 ## Safety
@@ -57,3 +58,9 @@ pnpm start
 - `search_filenames` finds files and directories by name or relative path.
 - `multi_edit` applies several exact replacements to one file atomically and participates in `/undo`.
 - `git_log` lets the agent inspect recent commit history.
+
+## Project Awareness
+
+- `.deepcodeignore` controls which files and folders DeepCode ignores during directory listing, file-name search, content search, and project tree snapshot generation.
+- On startup, DeepCode injects project notes from `DEEPCODE.md` plus a stable project tree snapshot into the model context.
+- Use `/context` to inspect the exact project context currently loaded.

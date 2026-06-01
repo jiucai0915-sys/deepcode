@@ -1,11 +1,11 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { loadIgnoreMatcher, type IgnoreMatcher } from "../project/ignore.js";
 import { isDangerousPath } from "../security/permissions.js";
 import { isInsideWorkspace, resolveWorkspacePath, toRelativePath } from "../security/workspace.js";
 import { optionalNumber } from "./path-args.js";
 import type { ToolExecutor } from "./registry.js";
 
-const IGNORED = new Set(["node_modules", ".git", "dist", ".next", "coverage", ".turbo"]);
 const MAX_FILE_SIZE_BYTES = 1024 * 1024;
 
 interface SearchMatch {
@@ -14,15 +14,15 @@ interface SearchMatch {
   line: string;
 }
 
-async function collectFiles(dirPath: string, files: string[] = []): Promise<string[]> {
+async function collectFiles(dirPath: string, matcher: IgnoreMatcher, files: string[] = []): Promise<string[]> {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
 
   for (const entry of entries) {
-    if (IGNORED.has(entry.name)) continue;
-
     const entryPath = path.join(dirPath, entry.name);
+    if (matcher.isIgnored(entryPath)) continue;
+
     if (entry.isDirectory()) {
-      await collectFiles(entryPath, files);
+      await collectFiles(entryPath, matcher, files);
       continue;
     }
 
@@ -98,7 +98,8 @@ export const searchFilesTool: ToolExecutor = {
     }
 
     const pattern = new RegExp(patternValue);
-    const files = await collectFiles(dirPath);
+    const matcher = await loadIgnoreMatcher();
+    const files = await collectFiles(dirPath, matcher);
     const matches: SearchMatch[] = [];
 
     for (const filePath of files) {

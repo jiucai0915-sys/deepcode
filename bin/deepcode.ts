@@ -63,7 +63,7 @@ const agent = new AgentLoop({
   llm,
   tools,
   systemPrompt: SYSTEM_PROMPT,
-  projectContext,
+  projectContext: projectContext.content,
   compressor,
   permissions,
   changeTracker,
@@ -117,6 +117,7 @@ function printHelp() {
 /cost             Show cumulative token cost
 /config           Show effective config without secrets
 /tools            List available tools
+/context          Show injected project context summary
 /clear            Clear conversation history
 /exit             Exit
 `);
@@ -204,6 +205,12 @@ async function handleCommand(line: string): Promise<boolean> {
     for (const tool of tools.getDefinitions()) {
       console.log(`${tool.name} - ${tool.description}`);
     }
+    return false;
+  }
+
+  if (line === "/context") {
+    console.log(`Context sources: ${projectContext.source}`);
+    console.log(projectContext.content);
     return false;
   }
 

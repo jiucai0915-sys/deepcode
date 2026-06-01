@@ -1,23 +1,30 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { loadIgnoreMatcher, type IgnoreMatcher } from "../project/ignore.js";
 import { isDangerousPath } from "../security/permissions.js";
 import { isInsideWorkspace, resolveWorkspacePath, toRelativePath } from "../security/workspace.js";
 import { optionalNumber, requireString } from "./path-args.js";
 import type { ToolExecutor } from "./registry.js";
 
-const IGNORED = new Set(["node_modules", ".git", "dist", ".next", "coverage", ".turbo"]);
 const MAX_ENTRIES = 500;
 
-async function walk(dirPath: string, depth: number, prefix = "", state = { count: 0 }): Promise<string[]> {
+async function walk(
+  dirPath: string,
+  depth: number,
+  matcher: IgnoreMatcher,
+  prefix = "",
+  state = { count: 0 }
+): Promise<string[]> {
   if (depth < 0 || state.count >= MAX_ENTRIES) return [];
 
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
   const visible = entries
-    .filter((entry) => !IGNORED.has(entry.name))
-    .sort((a, b) => Number(b.isDirectory()) - Number(a.isDirectory()) || a.name.localeCompare(b.name));
+    .map((entry) => ({ entry, entryPath: path.join(dirPath, entry.name) }))
+    .filter(({ entryPath }) => !matcher.isIgnored(entryPath))
+    .sort((a, b) => Number(b.entry.isDirectory()) - Number(a.entry.isDirectory()) || a.entry.name.localeCompare(b.entry.name));
 
   const lines: string[] = [];
-  for (const entry of visible) {
+  for (const { entry, entryPath } of visible) {
     if (state.count >= MAX_ENTRIES) {
       lines.push(`${prefix}... [truncated]`);
       break;
@@ -28,7 +35,7 @@ async function walk(dirPath: string, depth: number, prefix = "", state = { count
     lines.push(`${prefix}${entry.name}${marker}`);
 
     if (entry.isDirectory()) {
-      lines.push(...(await walk(path.join(dirPath, entry.name), depth - 1, `${prefix}  `, state)));
+      lines.push(...(await walk(entryPath, depth - 1, matcher, `${prefix}  `, state)));
     }
   }
 
@@ -69,7 +76,8 @@ export const listDirectoryTool: ToolExecutor = {
       return `Error: ${toRelativePath(dirPath)} is not a directory.`;
     }
 
-    const lines = await walk(dirPath, depth);
+    const matcher = await loadIgnoreMatcher();
+    const lines = await walk(dirPath, depth, matcher);
     return `${toRelativePath(dirPath)}/\n${lines.join("\n")}`;
   }
 };

@@ -1,0 +1,9 @@
+node_modules
+dist
+.git
+.deepcode
+.deepcode-demo
+.next
+coverage
+.turbo
+ignored-by-deepcodeignore

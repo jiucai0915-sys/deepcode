@@ -8,6 +8,7 @@ import { SessionStore } from "./agent/session.js";
 import { extractYamlFrontMatter, loadConfig, parseSimpleYaml, readProjectConfig, stripYamlFrontMatter } from "./config/defaults.js";
 import { calculateV4FlashCost, formatCny } from "./llm/cost.js";
 import type { Message } from "./llm/types.js";
+import { buildProjectTree } from "./project/tree.js";
 import { PermissionManager } from "./security/permissions.js";
 import { createDefaultToolRegistry } from "./tools/index.js";
 
@@ -28,6 +29,12 @@ async function execute(name: string, args: Record<string, unknown>) {
 
 async function main() {
   await fs.rm(scratchDir, { recursive: true, force: true });
+  await fs.mkdir(path.join(scratchDir, "ignored-by-deepcodeignore"), { recursive: true });
+  await fs.writeFile(
+    path.join(scratchDir, "ignored-by-deepcodeignore", "hidden.txt"),
+    "hidden deepseek marker\n",
+    "utf8"
+  );
 
   const toolNames = registry.getDefinitions().map((definition) => definition.name);
   const sortedToolNames = [...toolNames].sort((a, b) => a.localeCompare(b));
@@ -94,7 +101,7 @@ async function main() {
     dir_path: scratchDir,
     pattern: "deepseek"
   });
-  if (!searchResult.includes("hello.txt:1")) {
+  if (!searchResult.includes("hello.txt:1") || searchResult.includes("hidden.txt")) {
     throw new Error("search_files did not find expected match");
   }
   console.log(searchResult);
@@ -107,6 +114,21 @@ async function main() {
     throw new Error("search_filenames did not find expected file");
   }
   console.log(filenameSearch);
+
+  const hiddenFilenameSearch = await execute("search_filenames", {
+    dir_path: scratchDir,
+    pattern: "hidden\\.txt"
+  });
+  if (hiddenFilenameSearch.includes("hidden.txt")) {
+    throw new Error("search_filenames did not respect .deepcodeignore");
+  }
+  console.log(`ignore smoke: ${hiddenFilenameSearch}`);
+
+  const treeSnapshot = await buildProjectTree({ maxDepth: 2, maxEntries: 80 });
+  if (treeSnapshot.includes("node_modules") || treeSnapshot.includes("dist/")) {
+    throw new Error("project tree did not respect .deepcodeignore");
+  }
+  console.log("context tree smoke: ignored heavy folders");
 
   const repoDir = path.join(scratchDir, "repo");
   await fs.mkdir(repoDir, { recursive: true });

@@ -1,25 +1,26 @@
 import fs from "node:fs/promises";
 import path from "node:path";
+import { loadIgnoreMatcher, type IgnoreMatcher } from "../project/ignore.js";
 import { isDangerousPath } from "../security/permissions.js";
 import { isInsideWorkspace, resolveWorkspacePath, toRelativePath } from "../security/workspace.js";
 import { optionalNumber } from "./path-args.js";
 import type { ToolExecutor } from "./registry.js";
 
-const IGNORED = new Set(["node_modules", ".git", "dist", ".next", "coverage", ".turbo"]);
-
 async function collectMatchingPaths(
   dirPath: string,
   pattern: RegExp,
   maxResults: number,
+  matcher: IgnoreMatcher,
   results: string[] = []
 ): Promise<string[]> {
   const entries = await fs.readdir(dirPath, { withFileTypes: true });
 
   for (const entry of entries) {
     if (results.length >= maxResults) break;
-    if (IGNORED.has(entry.name)) continue;
 
     const entryPath = path.join(dirPath, entry.name);
+    if (matcher.isIgnored(entryPath)) continue;
+
     const relativePath = toRelativePath(entryPath).replaceAll("\\", "/");
 
     pattern.lastIndex = 0;
@@ -28,7 +29,7 @@ async function collectMatchingPaths(
     }
 
     if (entry.isDirectory()) {
-      await collectMatchingPaths(entryPath, pattern, maxResults, results);
+      await collectMatchingPaths(entryPath, pattern, maxResults, matcher, results);
     }
   }
 
@@ -74,7 +75,8 @@ export const searchFilenamesTool: ToolExecutor = {
     }
 
     const pattern = new RegExp(patternValue);
-    const matches = await collectMatchingPaths(dirPath, pattern, maxResults);
+    const matcher = await loadIgnoreMatcher();
+    const matches = await collectMatchingPaths(dirPath, pattern, maxResults, matcher);
 
     if (matches.length === 0) {
       return "No matching filenames found.";

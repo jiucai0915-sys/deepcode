@@ -1,0 +1,8 @@
+node_modules
+dist
+.env
+*.log
+.deepcode
+.deepcode-demo
+src/utils/math.ts
+src/utils/fizzbuzz.ts

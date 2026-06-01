@@ -4,6 +4,8 @@ DeepCode is a DeepSeek-native terminal coding agent.
 
 Phase 1 goal: chat, read files, write files, edit files, run commands, and repair errors from the terminal.
 
+For the current Chinese operation manual, see [docs/OPERATION_MANUAL.md](docs/OPERATION_MANUAL.md).
+
 ## Quick Start
 
 ```powershell

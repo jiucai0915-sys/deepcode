@@ -28,6 +28,7 @@ pnpm start
 - `/config` prints the effective config with secrets masked
 - `/tools` lists available tools
 - `/context` shows the project context injected into the model
+- `/init` creates a `DEEPCODE.md` project notes template
 - `/exit` exits
 
 ## Safety
@@ -66,3 +67,4 @@ pnpm start
 - `.deepcodeignore` controls which files and folders DeepCode ignores during directory listing, file-name search, content search, and project tree snapshot generation.
 - On startup, DeepCode injects project notes from `DEEPCODE.md` plus a stable project tree snapshot into the model context.
 - Use `/context` to inspect the exact project context currently loaded.
+- Use `corepack pnpm start -- --init` or `/init` to create a starter `DEEPCODE.md` file.

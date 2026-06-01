@@ -15,6 +15,7 @@ import { LLMClient } from "../src/llm/client.js";
 import type { TokenUsage } from "../src/llm/types.js";
 import { PermissionManager } from "../src/security/permissions.js";
 import { createDefaultToolRegistry } from "../src/tools/index.js";
+import { initProjectNotes } from "../src/project/init.js";
 
 const program = new Command();
 
@@ -23,9 +24,18 @@ program
   .description("DeepSeek native terminal coding agent")
   .option("--model <model>", "DeepSeek model or alias (flash/pro)")
   .option("--think", "enable thinking mode")
+  .option("--init", "create a DEEPCODE.md project notes template and exit")
+  .option("--force", "overwrite DEEPCODE.md when used with --init")
   .parse();
 
-const options = program.opts<{ model?: string; think?: boolean }>();
+const options = program.opts<{ model?: string; think?: boolean; init?: boolean; force?: boolean }>();
+
+if (options.init) {
+  const result = await initProjectNotes({ force: options.force });
+  console.log(result.message);
+  process.exit(result.created || !options.force ? 0 : 1);
+}
+
 const rl = readline.createInterface({ input, output });
 const globalConfig = await ensureGlobalConfig(rl);
 const config = await loadConfig({
@@ -118,6 +128,7 @@ function printHelp() {
 /config           Show effective config without secrets
 /tools            List available tools
 /context          Show injected project context summary
+/init             Create a DEEPCODE.md project notes template
 /clear            Clear conversation history
 /exit             Exit
 `);
@@ -211,6 +222,24 @@ async function handleCommand(line: string): Promise<boolean> {
   if (line === "/context") {
     console.log(`Context sources: ${projectContext.source}`);
     console.log(projectContext.content);
+    return false;
+  }
+
+  if (line === "/init") {
+    const result = await initProjectNotes();
+    if (!result.created && result.message.includes("already exists")) {
+      const approved = await confirm("DEEPCODE.md already exists. Overwrite it?");
+      if (!approved) {
+        console.log(chalk.dim("Project notes initialization cancelled."));
+        return false;
+      }
+
+      const forced = await initProjectNotes({ force: true });
+      console.log(chalk.dim(forced.message));
+      return false;
+    }
+
+    console.log(chalk.dim(result.message));
     return false;
   }
 

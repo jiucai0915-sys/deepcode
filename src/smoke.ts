@@ -9,6 +9,7 @@ import { extractYamlFrontMatter, loadConfig, parseSimpleYaml, readProjectConfig,
 import { calculateV4FlashCost, formatCny } from "./llm/cost.js";
 import type { Message } from "./llm/types.js";
 import { buildProjectTree } from "./project/tree.js";
+import { initProjectNotes } from "./project/init.js";
 import { PermissionManager } from "./security/permissions.js";
 import { createDefaultToolRegistry } from "./tools/index.js";
 
@@ -301,6 +302,38 @@ async function main() {
     throw new Error("session persistence failed");
   }
   console.log(`session smoke: ${recentSessions.length} sessions, resumed ${resumedSession.id}`);
+
+  const initDir = path.join(scratchDir, "init-project");
+  await fs.mkdir(initDir, { recursive: true });
+  await fs.writeFile(
+    path.join(initDir, "package.json"),
+    JSON.stringify({
+      name: "init-smoke",
+      scripts: {
+        build: "tsup",
+        test: "node test.js"
+      },
+      dependencies: {
+        chalk: "^5.0.0"
+      }
+    }),
+    "utf8"
+  );
+  const initResult = await initProjectNotes({ cwd: initDir });
+  const initContent = await fs.readFile(path.join(initDir, "DEEPCODE.md"), "utf8");
+  const noOverwrite = await initProjectNotes({ cwd: initDir });
+  const forceOverwrite = await initProjectNotes({ cwd: initDir, force: true });
+  if (
+    !initResult.created ||
+    noOverwrite.created ||
+    !forceOverwrite.created ||
+    !initContent.includes("Name: init-smoke") ||
+    !initContent.includes("pnpm build") ||
+    !initContent.includes("chalk")
+  ) {
+    throw new Error("DEEPCODE.md init template failed");
+  }
+  console.log("init smoke: DEEPCODE.md template generated");
 
   await fs.rm(scratchDir, { recursive: true, force: true });
 }

@@ -90,6 +90,7 @@ DeepSeek API Key:
 | `/config` | 查看当前有效配置，API Key 会打码 |
 | `/tools` | 查看当前所有工具 |
 | `/context` | 查看注入给模型的项目上下文 |
+| `/init` | 生成 `DEEPCODE.md` 项目说明模板 |
 | `/clear` | 清空当前对话历史 |
 | `/exit` | 退出 |
 
@@ -187,6 +188,24 @@ DeepCode 启动时会注入两类项目上下文：
 
 ```text
 /context
+```
+
+生成项目说明模板：
+
+```powershell
+corepack pnpm start -- --init
+```
+
+如果已在 DeepCode CLI 内，也可以使用：
+
+```text
+/init
+```
+
+如果 `DEEPCODE.md` 已存在，CLI 内的 `/init` 会询问是否覆盖；命令行模式可使用：
+
+```powershell
+corepack pnpm start -- --init --force
 ```
 
 ## 8. `.deepcodeignore`
@@ -358,9 +377,8 @@ $env:LANG = "zh_CN.UTF-8"
 优先级建议：
 
 1. 完善测试体系，把 smoke 拆成单元测试和集成测试
-2. 增加 `DEEPCODE.md` 模板生成命令
-3. 增加更稳定的 token 计算器
-4. 做 npm 发布准备
-5. 增加 README 中英文版
-6. 增加 GitHub Actions
-7. 再考虑 Ink UI、Web Search、子 Agent、MCP 和插件系统
+2. 增加更稳定的 token 计算器
+3. 做 npm 发布准备
+4. 增加 README 中英文版
+5. 增加 GitHub Actions
+6. 再考虑 Ink UI、Web Search、子 Agent、MCP 和插件系统

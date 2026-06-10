@@ -1,11 +1,14 @@
 {
   "name": "@bakblake/deepcode",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "DeepSeek-native coding agent for your terminal | DeepSeek 原生终端编程 Agent",
   "type": "module",
   "bin": {
     "deepcode": "./dist/bin/deepcode.js"
   },
+  "files": [
+    "dist"
+  ],
   "homepage": "https://github.com/jiucai0915-sys/deepcode",
   "repository": {
     "type": "git",
@@ -20,7 +23,8 @@
     "typecheck": "tsc --noEmit",
     "test:unit": "node dist/src/test/unit.js",
     "test:integration": "node dist/src/test/integration.js",
-    "smoke": "node dist/src/smoke.js"
+    "smoke": "node dist/src/smoke.js",
+    "prepublishOnly": "npm run build"
   },
   "engines": {
     "node": ">=20.0.0"

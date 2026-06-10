@@ -1,0 +1,9 @@
+src/
+*.ts
+!dist/
+.deepcode/
+docs/
+*.test.js
+tsconfig.json
+tsup.config.ts
+.env*

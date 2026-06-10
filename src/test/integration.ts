@@ -13,25 +13,41 @@ const execFileAsync = promisify(execFile);
 export async function runIntegrationTests() {
   const registry = createDefaultToolRegistry();
   const permissions = new PermissionManager();
-  const changeTracker = new ChangeTracker();
-  const scratchDir = ".deepcode-integration";
-  const scratchFile = path.join(scratchDir, "hello.txt");
-
-  async function execute(name: string, args: Record<string, unknown>) {
-    return registry.execute(name, JSON.stringify(args), {
-      confirm: async () => true,
-      permissions,
-      changeTracker
-    });
-  }
-
+  const originalCwd = process.cwd();
+  const scratchDir = path.join(originalCwd, ".deepcode-integration");
   await fs.rm(scratchDir, { recursive: true, force: true });
-  await fs.mkdir(path.join(scratchDir, "ignored-by-deepcodeignore"), { recursive: true });
-  await fs.writeFile(
-    path.join(scratchDir, "ignored-by-deepcodeignore", "hidden.txt"),
-    "hidden deepseek marker\n",
-    "utf8"
-  );
+  await fs.mkdir(scratchDir, { recursive: true });
+  try {
+    process.chdir(scratchDir);
+
+    await execFileAsync("git", ["init"], { cwd: scratchDir, windowsHide: true });
+    await execFileAsync("git", ["config", "user.email", "deepcode@example.test"], { cwd: scratchDir, windowsHide: true });
+    await execFileAsync("git", ["config", "user.name", "DeepCode Smoke"], { cwd: scratchDir, windowsHide: true });
+    await fs.writeFile(
+      path.join(scratchDir, ".deepcodeignore"),
+      "ignored-by-deepcodeignore\nnode_modules\ndist\n.git\n",
+      "utf8"
+    );
+    await execFileAsync("git", ["add", ".deepcodeignore"], { cwd: scratchDir, windowsHide: true });
+    await execFileAsync("git", ["commit", "-m", "test: initial integration repo"], { cwd: scratchDir, windowsHide: true });
+
+    const changeTracker = new ChangeTracker(scratchDir);
+    const scratchFile = "hello.txt";
+
+    async function execute(name: string, args: Record<string, unknown>) {
+      return registry.execute(name, JSON.stringify(args), {
+        confirm: async () => true,
+        permissions,
+        changeTracker
+      });
+    }
+
+    await fs.mkdir(path.join(scratchDir, "ignored-by-deepcodeignore"), { recursive: true });
+    await fs.writeFile(
+      path.join(scratchDir, "ignored-by-deepcodeignore", "hidden.txt"),
+      "hidden deepseek marker\n",
+      "utf8"
+    );
 
   console.log(await execute("write_file", {
     file_path: scratchFile,
@@ -59,7 +75,7 @@ export async function runIntegrationTests() {
   console.log(multiEdited);
 
   const undoResult = await changeTracker.undoLast();
-  assert.match(undoResult, /restored/);
+  assert.match(undoResult, /Restored/);
   const restored = await execute("read_file", { file_path: scratchFile });
   assert.match(restored, /hello deepseek/);
   console.log(`integration undo: ${undoResult}`);
@@ -108,7 +124,10 @@ export async function runIntegrationTests() {
   assert.match(denied, /rejected/);
   console.log(denied);
 
-  await fs.rm(scratchDir, { recursive: true, force: true });
+  } finally {
+    process.chdir(originalCwd);
+    await fs.rm(scratchDir, { recursive: true, force: true });
+  }
 }
 
 async function assertGitTools(

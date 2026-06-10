@@ -109,13 +109,17 @@ export const multiEditTool: ToolExecutor = {
       return permission.reason ?? "Permission denied.";
     }
 
+    try {
+      await context.changeTracker?.createRestorePoint(
+        "edit",
+        `Apply ${edits.length} edits to ${toRelativePath(filePath)}`,
+        [{ filePath, beforeContent }]
+      );
+    } catch (error) {
+      return `Error: ${(error as Error).message}`;
+    }
+
     await fs.writeFile(filePath, nextContent, "utf8");
-    context.changeTracker?.record({
-      filePath,
-      beforeContent,
-      afterContent: nextContent,
-      operation: "edit"
-    });
 
     return `Applied ${edits.length} edits to ${toRelativePath(filePath)}.`;
   }

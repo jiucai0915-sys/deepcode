@@ -1,8 +1,9 @@
 # DeepCode 操作手册
 
 > 当前版本：本地 CLI Coding Agent 原型  
-> 技术栈：TypeScript + Node.js + pnpm + DeepSeek API  
-> 工作目录：`E:\deepcode`
+> 技术栈：TypeScript + Node.js + DeepSeek API  
+> 支持平台：Windows / macOS / Linux（Node.js 20+）  
+> 工作目录：项目克隆到本地后的任意目录
 
 ## 1. 当前状态
 
@@ -35,29 +36,22 @@ DeepCode 现在已经不是单纯 demo，而是一个可日常试用的 DeepSeek
 
 ## 2. 启动方式
 
-进入项目目录：
+克隆并进入项目目录：
 
-```powershell
-cd E:\deepcode
+```bash
+git clone https://github.com/jiucai0915-sys/deepcode.git
+cd deepcode
 ```
 
-安装依赖：
+安装依赖、构建、启动 CLI：
 
-```powershell
-corepack pnpm install
+```bash
+npm install
+npm run build
+npm start
 ```
 
-构建：
-
-```powershell
-corepack pnpm build
-```
-
-启动 CLI：
-
-```powershell
-corepack pnpm start
-```
+> Windows PowerShell 命令相同；也可以用 pnpm 代替 npm。
 
 首次启动如果没有全局配置，会提示输入 DeepSeek API Key：
 
@@ -65,10 +59,11 @@ corepack pnpm start
 DeepSeek API Key:
 ```
 
-输入后会保存到：
+输入后会保存到全局配置文件：
 
 ```text
-~\.deepcode\config.json
+macOS / Linux:  ~/.deepcode/config.json
+Windows:        %USERPROFILE%\.deepcode\config.json
 ```
 
 之后不需要每次设置环境变量。
@@ -133,13 +128,13 @@ DeepCode 使用四级权限模型：
 
 1. CLI 参数
 2. 项目级 `DEEPCODE.md` YAML front matter
-3. 全局 `~\.deepcode\config.json`
+3. 全局配置 `~/.deepcode/config.json`（Windows 为 `%USERPROFILE%\.deepcode\config.json`）
 4. 内置默认值
 
 CLI 示例：
 
-```powershell
-corepack pnpm start -- --model pro --think
+```bash
+npm start -- --model pro --think
 ```
 
 全局配置示例：
@@ -192,8 +187,8 @@ DeepCode 启动时会注入两类项目上下文：
 
 生成项目说明模板：
 
-```powershell
-corepack pnpm start -- --init
+```bash
+npm start -- --init
 ```
 
 如果已在 DeepCode CLI 内，也可以使用：
@@ -204,8 +199,8 @@ corepack pnpm start -- --init
 
 如果 `DEEPCODE.md` 已存在，CLI 内的 `/init` 会询问是否覆盖；命令行模式可使用：
 
-```powershell
-corepack pnpm start -- --init --force
+```bash
+npm start -- --init --force
 ```
 
 ## 8. `.deepcodeignore`
@@ -236,7 +231,7 @@ ignored-by-deepcodeignore
 DeepCode 会自动保存对话历史到：
 
 ```text
-.deepcode\sessions\
+.deepcode/sessions/
 ```
 
 查看最近 session：
@@ -295,12 +290,12 @@ DEEPCODE_USD_TO_CNY=7.25
 
 每次改完项目后运行：
 
-```powershell
-corepack pnpm typecheck
-corepack pnpm build
-corepack pnpm test:unit
-corepack pnpm test:integration
-corepack pnpm smoke
+```bash
+npm run typecheck
+npm run build
+npm run test:unit
+npm run test:integration
+npm run smoke
 ```
 
 全部通过后再提交。
@@ -323,21 +318,21 @@ corepack pnpm smoke
 
 查看状态：
 
-```powershell
+```bash
 git status --short --branch
 ```
 
 提交前验证：
 
-```powershell
-corepack pnpm typecheck
-corepack pnpm build
-corepack pnpm smoke
+```bash
+npm run typecheck
+npm run build
+npm run smoke
 ```
 
 提交：
 
-```powershell
+```bash
 git add .
 git commit -m "feat: describe change"
 ```
@@ -350,8 +345,7 @@ git commit -m "feat: describe change"
 
 说明当前目录没有 `.git`。解决：
 
-```powershell
-cd E:\deepcode
+```bash
 git init
 git add .
 git commit -m "chore: initial commit"
@@ -363,17 +357,13 @@ git commit -m "chore: initial commit"
 
 只有真实调用 DeepSeek API 且 API 返回 usage 时才会输出。纯本地工具操作不会产生 usage。
 
-### PowerShell 不能运行 `pnpm`
+### 没有 pnpm 怎么办
 
-优先使用：
+直接用 Node 自带的 npm 即可：`npm install`、`npm run build`、`npm start`。如果想用 pnpm，可通过 `corepack enable` 或单独安装。
 
-```powershell
-corepack pnpm <command>
-```
+### 中文显示乱码（Windows）
 
-### 中文显示乱码
-
-在 PowerShell 中执行：
+macOS / Linux 终端默认 UTF-8，一般不会乱码。Windows 下在 PowerShell 中执行：
 
 ```powershell
 [Console]::OutputEncoding = [Text.Encoding]::UTF8

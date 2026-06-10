@@ -58,14 +58,18 @@ export const writeFileTool: ToolExecutor = {
     }
 
     const beforeContent = existed ? await fs.readFile(filePath, "utf8") : null;
+    try {
+      await context.changeTracker?.createRestorePoint(
+        existed ? "overwrite" : "create",
+        `${existed ? "Overwrite" : "Create"} ${toRelativePath(filePath)}`,
+        [{ filePath, beforeContent }]
+      );
+    } catch (error) {
+      return `Error: ${(error as Error).message}`;
+    }
+
     await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, content, "utf8");
-    context.changeTracker?.record({
-      filePath,
-      beforeContent,
-      afterContent: content,
-      operation: existed ? "overwrite" : "create"
-    });
     return `${existed ? "Overwrote" : "Created"} ${toRelativePath(filePath)}.`;
   }
 };

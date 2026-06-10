@@ -63,14 +63,18 @@ export const editFileTool: ToolExecutor = {
       return permission.reason ?? "Permission denied.";
     }
 
+    try {
+      await context.changeTracker?.createRestorePoint(
+        "edit",
+        `Edit ${toRelativePath(filePath)}`,
+        [{ filePath, beforeContent: content }]
+      );
+    } catch (error) {
+      return `Error: ${(error as Error).message}`;
+    }
+
     const nextContent = content.replace(oldText, newText);
     await fs.writeFile(filePath, nextContent, "utf8");
-    context.changeTracker?.record({
-      filePath,
-      beforeContent: content,
-      afterContent: nextContent,
-      operation: "edit"
-    });
     return `Edited ${toRelativePath(filePath)}.`;
   }
 };

@@ -1,10 +1,18 @@
 {
-  "name": "deepcode-cli",
+  "name": "@bakblake/deepcode",
   "version": "0.1.0",
-  "description": "DeepSeek native terminal coding agent",
+  "description": "DeepSeek-native coding agent for your terminal | DeepSeek 原生终端编程 Agent",
   "type": "module",
   "bin": {
     "deepcode": "./dist/bin/deepcode.js"
+  },
+  "homepage": "https://github.com/jiucai0915-sys/deepcode",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jiucai0915-sys/deepcode"
+  },
+  "bugs": {
+    "url": "https://github.com/jiucai0915-sys/deepcode/issues"
   },
   "scripts": {
     "build": "tsup",
@@ -19,12 +27,16 @@
   },
   "packageManager": "pnpm@10.14.0",
   "license": "MIT",
+  "author": "bakblake",
   "keywords": [
     "deepseek",
     "coding-agent",
     "cli",
     "ai",
-    "terminal"
+    "terminal",
+    "typescript",
+    "llm",
+    "agent"
   ],
   "dependencies": {
     "chalk": "^5.6.2",

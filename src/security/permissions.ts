@@ -101,14 +101,37 @@ export function classifyCommand(
   return 3;
 }
 
+const POSIX_SYSTEM_PREFIXES = [
+  "/etc",
+  "/bin",
+  "/sbin",
+  "/usr",
+  "/var",
+  "/sys",
+  "/proc",
+  "/dev",
+  "/boot",
+  "/root",
+  "/system",
+  "/library"
+];
+
 export function isDangerousPath(pathValue: string): boolean {
-  const normalized = pathValue.replaceAll("/", "\\").toLowerCase();
-  return (
-    normalized.startsWith("c:\\windows") ||
-    normalized.startsWith("c:\\program files") ||
-    normalized.startsWith("c:\\program files (x86)") ||
-    normalized.includes("\\system32")
+  const lower = pathValue.toLowerCase();
+
+  const windowsNormalized = lower.replaceAll("/", "\\");
+  const isWindowsSystemPath =
+    windowsNormalized.startsWith("c:\\windows") ||
+    windowsNormalized.startsWith("c:\\program files") ||
+    windowsNormalized.startsWith("c:\\program files (x86)") ||
+    windowsNormalized.includes("\\system32");
+
+  const posixNormalized = lower.replaceAll("\\", "/");
+  const isPosixSystemPath = POSIX_SYSTEM_PREFIXES.some(
+    (prefix) => posixNormalized === prefix || posixNormalized.startsWith(`${prefix}/`)
   );
+
+  return isWindowsSystemPath || isPosixSystemPath;
 }
 
 function isWhitelistedCommand(command: string, commandWhitelist: string[]): boolean {

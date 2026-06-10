@@ -56,7 +56,8 @@ export async function ensureGlobalConfig(rl: ReadlineInterface, homeDir = os.hom
     return existing;
   }
 
-  const apiKey = (await rl.question("DeepSeek API Key: ")).trim();
+  const envApiKey = process.env.DEEPSEEK_API_KEY?.trim();
+  const apiKey = envApiKey || (await rl.question("DeepSeek API Key: ")).trim();
   const config: UserConfig = {
     ...(existing ?? {}),
     apiKey,

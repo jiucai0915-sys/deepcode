@@ -10,17 +10,26 @@ DeepCode is a DeepSeek-native coding agent for your terminal. It can understand 
 
 ### 安装
 
-```powershell
-cd E:\deepcode
-corepack pnpm install
-corepack pnpm build
-corepack pnpm start
+DeepCode 需要 Node.js 20+，在 Windows、macOS、Linux 上都可以运行。
+
+克隆并构建：
+
+```bash
+git clone https://github.com/jiucai0915-sys/deepcode.git
+cd deepcode
+npm install
+npm run build
+npm start
 ```
+
+> 也可以用 pnpm：`pnpm install && pnpm build && pnpm start`。
+>
+> Windows PowerShell 用法相同，只是进入目录的命令是 `cd path\to\deepcode`。
 
 如果你要在新项目中初始化 DeepCode 项目说明：
 
-```powershell
-corepack pnpm start -- --init
+```bash
+npm start -- --init
 ```
 
 ### 首次配置
@@ -31,8 +40,8 @@ DeepCode 支持三种配置方式。
 
 方式一：首次启动时交互式输入
 
-```powershell
-corepack pnpm start
+```bash
+npm start
 ```
 
 如果本机还没有全局配置，DeepCode 会提示：
@@ -41,29 +50,38 @@ corepack pnpm start
 DeepSeek API Key:
 ```
 
-输入后会保存到：
+输入后会保存到全局配置文件：
 
 ```text
-~\.deepcode\config.json
+macOS / Linux:  ~/.deepcode/config.json
+Windows:        %USERPROFILE%\.deepcode\config.json
 ```
 
 方式二：手动设置环境变量
 
-PowerShell 临时设置：
+macOS / Linux：
+
+```bash
+export DEEPSEEK_API_KEY="sk-your-api-key"
+npm start
+```
+
+Windows PowerShell：
 
 ```powershell
 $env:DEEPSEEK_API_KEY = "sk-your-api-key"
-corepack pnpm start
+npm start
 ```
 
-也可以把 `DEEPSEEK_API_KEY` 写入系统环境变量。如果还没有全局配置，DeepCode 会在首次启动时把这个环境变量导入并保存到 `~\.deepcode\config.json`；如果全局配置已经存在，则优先使用全局配置。
+也可以把 `DEEPSEEK_API_KEY` 写入系统环境变量。如果还没有全局配置，DeepCode 会在首次启动时把这个环境变量导入并保存到全局配置文件；如果全局配置已经存在，则优先使用全局配置。
 
 方式三：直接编辑全局配置
 
 文件位置：
 
 ```text
-~\.deepcode\config.json
+macOS / Linux:  ~/.deepcode/config.json
+Windows:        %USERPROFILE%\.deepcode\config.json
 ```
 
 完整示例：
@@ -99,7 +117,7 @@ corepack pnpm start
 
 1. CLI 参数，例如 `--model pro --think`
 2. 项目级 `DEEPCODE.md` YAML front matter
-3. 全局 `~\.deepcode\config.json`
+3. 全局配置 `~/.deepcode/config.json`（Windows 为 `%USERPROFILE%\.deepcode\config.json`）
 4. 内置默认值
 
 ### 使用教程
@@ -317,8 +335,8 @@ commandWhitelist:
 
 生成模板：
 
-```powershell
-corepack pnpm start -- --init
+```bash
+npm start -- --init
 ```
 
 或在 CLI 中：
@@ -475,12 +493,12 @@ DeepCode 使用四级权限：
 
 ### 验证
 
-```powershell
-corepack pnpm typecheck
-corepack pnpm build
-corepack pnpm test:unit
-corepack pnpm test:integration
-corepack pnpm smoke
+```bash
+npm run typecheck
+npm run build
+npm run test:unit
+npm run test:integration
+npm run smoke
 ```
 
 ### FAQ
@@ -491,16 +509,16 @@ corepack pnpm smoke
 
 #### 支持哪些操作系统？
 
-当前主要在 Windows 11 + PowerShell 上开发和验证。理论上 Node.js 20+ 可运行的 macOS、Linux 也可以使用，但路径、shell 命令和终端显示还需要进一步测试。
+已在 **Windows 11 + PowerShell** 和 **macOS** 上验证（构建、测试、CLI 启动均通过）。只要有 Node.js 20+，Linux 同样可用。路径、全局配置目录和危险路径防护都做了跨平台处理。
 
 #### 如何升级到最新版本？
 
 如果是本地源码：
 
-```powershell
+```bash
 git pull
-corepack pnpm install
-corepack pnpm build
+npm install
+npm run build
 ```
 
 如果未来从 npm 安装：
@@ -557,17 +575,24 @@ DeepCode 的目标是成为 DeepSeek 原生的终端 coding agent：
 
 ### Installation
 
-```powershell
-cd E:\deepcode
-corepack pnpm install
-corepack pnpm build
-corepack pnpm start
+DeepCode needs Node.js 20+ and runs on Windows, macOS, and Linux.
+
+```bash
+git clone https://github.com/jiucai0915-sys/deepcode.git
+cd deepcode
+npm install
+npm run build
+npm start
 ```
+
+> pnpm also works: `pnpm install && pnpm build && pnpm start`.
+>
+> On Windows PowerShell the commands are the same; only the directory path differs (`cd path\to\deepcode`).
 
 To initialize project notes in a new project:
 
-```powershell
-corepack pnpm start -- --init
+```bash
+npm start -- --init
 ```
 
 ### First-Time Configuration
@@ -578,8 +603,8 @@ DeepCode supports three configuration methods.
 
 Method 1: interactive setup on first launch.
 
-```powershell
-corepack pnpm start
+```bash
+npm start
 ```
 
 If no global config exists, DeepCode prompts:
@@ -588,29 +613,38 @@ If no global config exists, DeepCode prompts:
 DeepSeek API Key:
 ```
 
-After you enter the key, DeepCode saves it to:
+After you enter the key, DeepCode saves it to the global config file:
 
 ```text
-~/.deepcode/config.json
+macOS / Linux:  ~/.deepcode/config.json
+Windows:        %USERPROFILE%\.deepcode\config.json
 ```
 
 Method 2: set `DEEPSEEK_API_KEY`.
 
-Temporary PowerShell setup:
+macOS / Linux:
+
+```bash
+export DEEPSEEK_API_KEY="sk-your-api-key"
+npm start
+```
+
+Windows PowerShell:
 
 ```powershell
 $env:DEEPSEEK_API_KEY = "sk-your-api-key"
-corepack pnpm start
+npm start
 ```
 
-If the global config file does not exist yet, DeepCode imports this environment variable into `~/.deepcode/config.json` during first launch. Existing global config still has priority.
+If the global config file does not exist yet, DeepCode imports this environment variable into the global config during first launch. Existing global config still has priority.
 
 Method 3: edit the global config file directly.
 
 File path:
 
 ```text
-~/.deepcode/config.json
+macOS / Linux:  ~/.deepcode/config.json
+Windows:        %USERPROFILE%\.deepcode\config.json
 ```
 
 Example global config:
@@ -840,8 +874,8 @@ commandWhitelist:
 
 Generate one with:
 
-```powershell
-corepack pnpm start -- --init
+```bash
+npm start -- --init
 ```
 
 Or inside the CLI:
@@ -973,16 +1007,16 @@ Create an account and API key at [platform.deepseek.com](https://platform.deepse
 
 #### Which operating systems are supported?
 
-DeepCode is currently developed and tested mainly on Windows 11 + PowerShell. It should run on macOS and Linux with Node.js 20+, but shell/path behavior needs more testing.
+DeepCode is verified on **Windows 11 + PowerShell** and **macOS** (build, tests, and CLI launch all pass). It also runs on Linux with Node.js 20+. Path handling, the global config directory, and dangerous-path protection are all cross-platform.
 
 #### How do I upgrade?
 
 From source:
 
-```powershell
+```bash
 git pull
-corepack pnpm install
-corepack pnpm build
+npm install
+npm run build
 ```
 
 From npm once published:

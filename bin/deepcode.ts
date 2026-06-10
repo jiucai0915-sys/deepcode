@@ -178,13 +178,13 @@ async function handleCommand(line: string): Promise<boolean> {
   }
 
   if (line === "/undo") {
-    const change = changeTracker.peek();
-    if (!change) {
-      console.log(chalk.dim("No DeepCode file changes to undo."));
+    const restorePoint = changeTracker.peek();
+    if (!restorePoint) {
+      console.log(chalk.dim("No DeepCode Git restore points to undo."));
       return false;
     }
 
-    const approved = await confirm(`Undo last ${change.operation} on ${change.filePath}?`);
+    const approved = await confirm(`Undo Git restore point ${restorePoint.id} (${restorePoint.label})?`);
     if (!approved) {
       console.log(chalk.dim("Undo cancelled."));
       return false;
@@ -267,7 +267,14 @@ async function handleCommand(line: string): Promise<boolean> {
 printBanner();
 
 while (true) {
-  const line = (await rl.question(chalk.cyan("> "))).trim();
+  let line: string;
+  try {
+    line = (await rl.question(chalk.cyan("> "))).trim();
+  } catch {
+    // stdin reached EOF (Ctrl-D) or the stream was closed; exit cleanly.
+    console.log();
+    break;
+  }
   if (!line) continue;
 
   if (line.startsWith("/")) {

@@ -4,16 +4,18 @@ import assert from "node:assert/strict";
 import { compressConversation, CONVERSATION_SUMMARY_PREFIX } from "../agent/compressor.js";
 import { SessionStore } from "../agent/session.js";
 import {
+  ensureGlobalConfig,
   extractYamlFrontMatter,
   loadConfig,
   parseSimpleYaml,
+  readGlobalConfig,
   readProjectConfig,
   stripYamlFrontMatter
 } from "../config/defaults.js";
 import { calculateV4FlashCost, formatCny } from "../llm/cost.js";
 import type { Message } from "../llm/types.js";
 import { initProjectNotes } from "../project/init.js";
-import { PermissionManager } from "../security/permissions.js";
+import { PermissionManager, isDangerousPath } from "../security/permissions.js";
 import { createDefaultToolRegistry } from "../tools/index.js";
 
 export async function runUnitTests() {
@@ -56,6 +58,14 @@ async function assertPermissionLevels() {
   assert.equal(permissionSmoke.classifyCommand("node --version"), 1);
   assert.equal(permissionSmoke.classifyCommand("echo hi"), 3);
   assert.equal(permissionSmoke.classifyCommand("rm -rf /"), 4);
+
+  // Dangerous-path guard is cross-platform.
+  assert.equal(isDangerousPath("C:\\Windows\\System32"), true);
+  assert.equal(isDangerousPath("/etc/passwd"), true);
+  assert.equal(isDangerousPath("/usr/local/bin"), true);
+  assert.equal(isDangerousPath("/System/Library"), true);
+  assert.equal(isDangerousPath("/Users/me/project/src/index.ts"), false);
+  assert.equal(isDangerousPath("./src/index.ts"), false);
   console.log("unit permissions: levels 1-4 passed");
 }
 
@@ -133,6 +143,26 @@ async function assertLayeredConfig() {
   assert.equal(loadedConfig.llm.thinking, true);
   assert.equal(loadedConfig.maxToolRounds, 12);
   assert.equal(loadedConfig.commandWhitelist.join(","), "node,pnpm");
+
+  const envHomeDir = path.join(scratchDir, "env-home");
+  const previousEnvApiKey = process.env.DEEPSEEK_API_KEY;
+  process.env.DEEPSEEK_API_KEY = "sk-env";
+  try {
+    const envConfig = await ensureGlobalConfig({
+      question: async () => {
+        throw new Error("should not prompt when DEEPSEEK_API_KEY is set");
+      }
+    } as never, envHomeDir);
+    const savedEnvConfig = await readGlobalConfig(envHomeDir);
+    assert.equal(envConfig.apiKey, "sk-env");
+    assert.equal(savedEnvConfig?.apiKey, "sk-env");
+  } finally {
+    if (previousEnvApiKey === undefined) {
+      delete process.env.DEEPSEEK_API_KEY;
+    } else {
+      process.env.DEEPSEEK_API_KEY = previousEnvApiKey;
+    }
+  }
 
   const frontMatter = extractYamlFrontMatter(projectFile);
   assert.ok(frontMatter);

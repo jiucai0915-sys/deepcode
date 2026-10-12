@@ -1,0 +1,8 @@
+# 渲染中间产物（最终 mp4 / srt / stills / 音频素材需要保留）
+output/preview/
+frames/
+*.rgb
+*.raw
+assets/audio/_tight_*.wav
+__pycache__/
+*.pyc

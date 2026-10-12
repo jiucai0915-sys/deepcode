@@ -1,0 +1,61 @@
+{
+  "engine": "gtts",
+  "tempo": 1.2328,
+  "lines": [
+    {
+      "index": 1,
+      "text": "你问一句话，模型先把它切成 token。",
+      "subtitle": "你问一句话，模型先把它切成 token。",
+      "file": "narration_01.wav",
+      "start": 1.312,
+      "end": 4.605,
+      "duration": 3.293,
+      "sub_start": 1.262,
+      "sub_end": 4.855
+    },
+    {
+      "index": 2,
+      "text": "每个 token 都会变成一串数字。",
+      "subtitle": "每个 token 都会变成一串数字。",
+      "file": "narration_02.wav",
+      "start": 4.905,
+      "end": 7.539,
+      "duration": 2.634,
+      "sub_start": 4.855,
+      "sub_end": 7.789
+    },
+    {
+      "index": 3,
+      "text": "模型从海量数据学到规律，结合上下文，预测下一个词。",
+      "subtitle": "模型从海量数据学到规律，结合上下文，预测下一个词。",
+      "file": "narration_03.wav",
+      "start": 7.839,
+      "end": 13.248,
+      "duration": 5.408,
+      "sub_start": 7.789,
+      "sub_end": 13.497
+    },
+    {
+      "index": 4,
+      "text": "回答就这样逐字生成。",
+      "subtitle": "回答就这样逐字生成。",
+      "file": "narration_04.wav",
+      "start": 13.547,
+      "end": 15.736,
+      "duration": 2.189,
+      "sub_start": 13.497,
+      "sub_end": 15.986
+    },
+    {
+      "index": 5,
+      "text": "但要记住：说得流畅，不一定正确。",
+      "subtitle": "但要记住：说得流畅，不一定正确。",
+      "file": "narration_05.wav",
+      "start": 16.036,
+      "end": 19.25,
+      "duration": 3.214,
+      "sub_start": 15.986,
+      "sub_end": 19.5
+    }
+  ]
+}
